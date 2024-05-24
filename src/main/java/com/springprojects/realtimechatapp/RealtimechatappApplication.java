@@ -1,14 +1,16 @@
 package com.springprojects.realtimechatapp;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.awt.*;
+import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
 @SpringBootApplication
+@EnableTransactionManagement
 public class RealtimechatappApplication {
 
 	public static void main(String[] args) {

@@ -48,7 +48,7 @@
 		<property name="packagesToScan" value="com.springprojects.realtimechatapp" />
 		<property name="hibernateProperties">
 		   <props>
-		      <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+		      <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
 		      <prop key="hibernate.show_sql">true</prop>
 		   </props>
 		</property>

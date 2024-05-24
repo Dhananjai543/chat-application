@@ -24,10 +24,11 @@ public class ChatUserDaoImpl implements ChatUserDAO{
 		return chatUsers;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void saveChatUser(ChatUser theChatUser) {
 		Session currentSession = sessionFactory.getCurrentSession();
-		currentSession.merge(theChatUser);	
+		currentSession.saveOrUpdate(theChatUser);	
 	}
 
 	@Override
