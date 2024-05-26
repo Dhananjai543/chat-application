@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name="chat_user")
@@ -31,6 +32,7 @@ public class ChatUser {
 	private String user_email;
 	
 	@Column(name="user_password")
+	@Size(min = 8, max = 12, message = "Password must be between 8 and 12 characters")
 	private String user_password;
 	
 	

@@ -36,7 +36,7 @@ public class ChatGroup {
 			)
 	private List<ChatUser> chatUsers;
 	
-	public void ChatGroup() {
+	public ChatGroup() {
 		
 	}
 

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Sign Up Form</title>
+	<link rel="stylesheet" type="text/css" href="/resources/css/styles.css">
+</head>
+
+<body>
+	<div class="container">
+		<h2>Sign Up</h2>
+		<form th:action="@{/processSignUpForm}" th:object="${chatUser}" method="post">
+			<div class="input-group">
+				<label for="name">Name</label>
+				<input type="text" th:field="*{user_name}" />
+			</div>
+			<div class="input-group">
+				<label for="email">Email</label>
+				<input type="email" th:field="*{user_email}" />
+				<form:errors path="user_email" cssClass="error" />
+			</div>
+			<div class="input-group">
+				<label for="password">Password</label>
+				<input type="password" th:field="*{user_password}" />
+				<form:input path="user_password" />
+				<p th:if="${#fields.hasErrors('user_password')}" th:errors="*{user_password}" cssClass="error"></p>
+			</div>
+			<button type="submit">Sign Up</button>
+		</form>
+	</div>
+</body>
+
+</html>

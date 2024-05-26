@@ -16,10 +16,12 @@
             <div class="input-group">
                 <label for="email">Email</label>
                 <form:input path="user_email" />
+                <form:errors path="user_email" cssClass="error" />
             </div>
             <div class="input-group">
                 <label for="password">Password</label>
                 <form:input path="user_password" />
+                <form:errors path="user_password" cssClass="error" />
             </div>
             <button type="submit">Sign Up</button>
         </form:form>
