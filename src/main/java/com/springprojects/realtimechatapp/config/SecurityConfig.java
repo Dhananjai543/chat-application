@@ -34,6 +34,7 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(configurer -> configurer
 						.requestMatchers("/css/**").permitAll() //initially non authenticated users does not have access to css, so this is added
+						.requestMatchers("/showSignUpForm","/showLoginForm","/processSignUpForm").permitAll() // allow unauthenticated access to sign up page
 						.anyRequest().authenticated())
 						.formLogin(form -> form.loginPage("/showLoginForm")
 						.loginProcessingUrl("/authenticateTheUser")
