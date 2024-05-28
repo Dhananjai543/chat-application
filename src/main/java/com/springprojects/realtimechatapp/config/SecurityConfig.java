@@ -16,7 +16,7 @@ public class SecurityConfig {
 
 
 //	@Bean
-//	public PasswordEncoder passwordEncoder() {
+//	public BCryptPasswordEncoder passwordEncoder() {
 //		return new BCryptPasswordEncoder();
 //	}
 
@@ -32,8 +32,10 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.authorizeHttpRequests(configurer -> configurer.anyRequest().authenticated())
-				.formLogin(form -> form.loginPage("/showLoginForm")
+		http.authorizeHttpRequests(configurer -> configurer
+						.requestMatchers("/css/**").permitAll() //initially non authenticated users does not have access to css, so this is added
+						.anyRequest().authenticated())
+						.formLogin(form -> form.loginPage("/showLoginForm")
 						.loginProcessingUrl("/authenticateTheUser")
 						.usernameParameter("user_email")
 						.passwordParameter("user_password")

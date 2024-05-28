@@ -7,7 +7,7 @@
 <body>
     <div class="container">
         <h2>Chat Page</h2>
-        <!-- Add your chat-related content here -->
+        <!-- Add your chat-	related content here -->
     </div>
 </body>
 </html>

@@ -3,26 +3,28 @@
 
 <head>
 	<title>Sign Up Form</title>
-	<link rel="stylesheet" type="text/css" href="/resources/css/styles.css">
+	<link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}">
 </head>
 
 <body>
 	<div class="container">
 		<h2>Sign Up</h2>
 		<form th:action="@{/processSignUpForm}" th:object="${chatUser}" method="post">
+			
+			<p th:if="${error}" th:text="${error}" class="error"></p>
+
 			<div class="input-group">
 				<label for="name">Name</label>
-				<input type="text" th:field="*{user_name}" />
+				<input type="text" id="name" th:field="*{user_name}" />
 			</div>
 			<div class="input-group">
 				<label for="email">Email</label>
-				<input type="email" th:field="*{user_email}" />
-				<form:errors path="user_email" cssClass="error" />
+				<input type="email" id="email" th:field="*{user_email}" />
+				<p th:if="${#fields.hasErrors('user_email')}" th:errors="*{user_email}" cssClass="error"></p>
 			</div>
 			<div class="input-group">
 				<label for="password">Password</label>
-				<input type="password" th:field="*{user_password}" />
-				<form:input path="user_password" />
+				<input type="password" id="password" th:field="*{user_password}" />
 				<p th:if="${#fields.hasErrors('user_password')}" th:errors="*{user_password}" cssClass="error"></p>
 			</div>
 			<button type="submit">Sign Up</button>

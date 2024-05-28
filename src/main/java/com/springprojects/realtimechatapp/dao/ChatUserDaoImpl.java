@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.springprojects.realtimechatapp.entity.ChatUser;
 
 @Repository
-public class ChatUserDaoImpl implements ChatUserDAO{
+public class ChatUserDAOImpl implements ChatUserDAO{
 	
 	@Autowired
 	private SessionFactory sessionFactory;

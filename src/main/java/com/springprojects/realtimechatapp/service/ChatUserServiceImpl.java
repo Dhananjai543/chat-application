@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.springprojects.realtimechatapp.dao.AuthorityDAO;
 import com.springprojects.realtimechatapp.dao.ChatUserDAO;
+import com.springprojects.realtimechatapp.entity.Authority;
 import com.springprojects.realtimechatapp.entity.ChatUser;
 
 @Service
@@ -14,6 +16,9 @@ public class ChatUserServiceImpl implements ChatUserService{
 
 	@Autowired
 	private ChatUserDAO chatUserDao;
+	
+	@Autowired
+	private AuthorityDAO authorityDao;
 	
 	@Override
 	@Transactional
@@ -25,6 +30,13 @@ public class ChatUserServiceImpl implements ChatUserService{
 	@Transactional
 	public void saveChatUser(ChatUser theChatUser) {
 		chatUserDao.saveChatUser(theChatUser);
+		// Create and save the Authority
+        Authority authority = new Authority(theChatUser.getUser_email(), "ROLE_USER");
+        authorityDao.saveOrUpdateAuthority(authority);
+
+        // Add the Authority to the ChatUser
+        theChatUser.getAuthorities().add(authority);
+  
 	}
 	
 	@Override

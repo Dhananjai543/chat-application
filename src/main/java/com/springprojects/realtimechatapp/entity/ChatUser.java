@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 
@@ -32,7 +33,7 @@ public class ChatUser {
 	private String user_email;
 	
 	@Column(name="user_password")
-	@Size(min = 8, max = 12, message = "Password must be between 8 and 12 characters")
+	@Size(min = 8, max = 20, message = "Password must be between 8 and 12 characters")
 	private String user_password;
 	
 	
@@ -43,6 +44,11 @@ public class ChatUser {
 			inverseJoinColumns=@JoinColumn(name="group_id")
 			)
 	private List<ChatGroup> chatGroups;
+	
+
+    @OneToMany(fetch=FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="user_email")
+    private List<Authority> authorities;
+
 
 	public ChatUser() {
 		
@@ -95,6 +101,17 @@ public class ChatUser {
 	}
 	
 	
+	public List<Authority> getAuthorities() {
+		if(authorities == null) {
+			authorities = new ArrayList<>();
+		}
+		return authorities;
+	}
+
+	public void setAuthorities(List<Authority> authorities) {
+		this.authorities = authorities;
+	}
+
 	public void addchatGroup(ChatGroup chatGroup) {
 		if(chatGroups == null) {
 			chatGroups = new ArrayList<>();
