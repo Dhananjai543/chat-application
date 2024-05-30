@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import com.springprojects.realtimechatapp.entity.ChatUser;
 
+import jakarta.persistence.NoResultException;
+
 @Repository
 public class ChatUserDAOImpl implements ChatUserDAO{
 	
@@ -46,4 +48,15 @@ public class ChatUserDAOImpl implements ChatUserDAO{
 		theQuery.executeUpdate();
 	}
 
+	@Override
+	public ChatUser findByUsername(String username) {
+	    Session currentSession = sessionFactory.getCurrentSession();
+	    Query<ChatUser> theQuery = currentSession.createQuery("from ChatUser where user_name=:u", ChatUser.class);
+	    theQuery.setParameter("u", username);
+	    try {
+	        return theQuery.getSingleResult();
+	    } catch (NoResultException nre) {
+	        return null;
+	    }
+	}
 }

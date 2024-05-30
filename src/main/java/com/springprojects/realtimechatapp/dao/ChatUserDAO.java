@@ -14,4 +14,6 @@ public interface ChatUserDAO {
 
 	public void deleteChatUser(int theId);
 
+	public ChatUser findByUsername(String username);
+
 }

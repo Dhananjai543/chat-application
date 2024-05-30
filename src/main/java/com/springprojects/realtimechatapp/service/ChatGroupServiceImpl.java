@@ -2,6 +2,7 @@ package com.springprojects.realtimechatapp.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +12,7 @@ import com.springprojects.realtimechatapp.entity.ChatGroup;
 @Service
 public class ChatGroupServiceImpl implements ChatGroupService {
 
+	@Autowired
 	private ChatGroupDAO chatGroupDao;
 	
 	@Override
@@ -35,6 +37,12 @@ public class ChatGroupServiceImpl implements ChatGroupService {
 	@Transactional
 	public void deleteChatGroup(int theId) {
 		chatGroupDao.deleteChatGroup(theId);
+	}
+
+	@Override
+	@Transactional
+	public ChatGroup findByChatGroupName(String chatgroup) {
+		return chatGroupDao.findByChatGroupName(chatgroup);
 	}
 
 }

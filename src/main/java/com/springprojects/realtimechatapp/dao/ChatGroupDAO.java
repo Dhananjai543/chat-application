@@ -14,4 +14,6 @@ public interface ChatGroupDAO {
 
 	public void deleteChatGroup(int theId);
 
+	public ChatGroup findByChatGroupName(String chatgroup);
+
 }
