@@ -15,4 +15,6 @@ public interface ChatUserService {
 
 	public void deleteChatUser(int theId);
 	
+	public ChatUser findByUsername(String username);
+	
 }

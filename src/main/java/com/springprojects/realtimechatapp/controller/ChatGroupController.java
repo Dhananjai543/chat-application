@@ -1,6 +1,8 @@
 package com.springprojects.realtimechatapp.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +26,11 @@ public class ChatGroupController {
 		// the database
 		ChatGroup foundGroup = chatGroupService.findByChatGroupName(chatgroup);
         if (foundGroup != null) {
-            return "chat";
+        	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String currentUsername = auth.getName();
+            System.out.println("Current Username: " + currentUsername);
+            model.addAttribute("currentUsername", currentUsername);
+            return "message-page";
         } else {
         	model.addAttribute("errorMessage", "Sorry! You entered an invalid group name.");
             return "chat-page";

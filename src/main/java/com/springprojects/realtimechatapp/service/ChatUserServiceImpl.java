@@ -51,4 +51,11 @@ public class ChatUserServiceImpl implements ChatUserService{
 		chatUserDao.deleteChatUser(theId);
 	}
 
+	@Override
+	@Transactional
+	public ChatUser findByUsername(String username) {
+		return chatUserDao.findByUsername(username);
+	}
+	
+
 }

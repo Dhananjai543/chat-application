@@ -23,11 +23,13 @@ public class AuthorityServiceImpl implements AuthorityService {
 	}
 
 	@Override
+	@Transactional
 	public void saveOrUpdateAuthority(Authority authority) {
 		authorityDao.saveOrUpdateAuthority(authority);
 	}
 
 	@Override
+	@Transactional
 	public void deleteAuthority(String user_email) {
 		authorityDao.deleteAuthority(user_email);
 	}

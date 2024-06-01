@@ -25,15 +25,15 @@ public class AppConfig implements WebMvcConfigurer {
     @Autowired
     private Environment env;
 
-    @Bean
-    public DataSource getDataSource() {
-        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
-        dataSourceBuilder.driverClassName(env.getProperty("spring.datasource.driver-class-name"));
-        dataSourceBuilder.url(env.getProperty("spring.datasource.url"));
-        dataSourceBuilder.username(env.getProperty("spring.datasource.username"));
-        dataSourceBuilder.password(env.getProperty("spring.datasource.password"));
-        return dataSourceBuilder.build();
-    }
+//    @Bean
+//    public DataSource getDataSource() {
+//        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
+//        dataSourceBuilder.driverClassName(env.getProperty("spring.datasource.driver-class-name"));
+//        dataSourceBuilder.url(env.getProperty("spring.datasource.url"));
+//        dataSourceBuilder.username(env.getProperty("spring.datasource.username"));
+//        dataSourceBuilder.password(env.getProperty("spring.datasource.password"));
+//        return dataSourceBuilder.build();
+//    }
 //
 //    @Bean
 //    public LocalSessionFactoryBean sessionFactory() {
