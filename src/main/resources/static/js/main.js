@@ -17,10 +17,18 @@ var colors = [
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
 
+function getUsername() {
+    console.log("Retrieving username");
+    fetch('/api/username')
+        .then(response => response.text())
+        .then(data => {
+            username = data;
+        });
+}
 // JavaScript (file.js)
 function connect(event) {
 
-    username = 'Dhananjai';
+    //username = 'Dhananjai';
     console.log("Inside connect function");
     if (username) {
         console.log("Inside connect function if condition");
@@ -129,6 +137,7 @@ function getAvatarColor(messageSender) {
 //document.getElementById('connectButton').addEventListener('submit', connect, true);
 
 document.addEventListener('DOMContentLoaded', function() {
+    getUsername();
     var connectButton = document.getElementById('connectButton');
     connectButton.addEventListener('submit', connect);
     messageForm.addEventListener('submit', sendMessage)

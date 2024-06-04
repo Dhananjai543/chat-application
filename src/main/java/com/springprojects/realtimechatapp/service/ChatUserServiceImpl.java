@@ -56,6 +56,12 @@ public class ChatUserServiceImpl implements ChatUserService{
 	public ChatUser findByUsername(String username) {
 		return chatUserDao.findByUsername(username);
 	}
+
+	@Override
+	@Transactional
+	public ChatUser findByUserEmail(String email) {
+		return chatUserDao.findByUserEmail(email);
+	}
 	
 
 }

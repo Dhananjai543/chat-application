@@ -17,4 +17,6 @@ public interface ChatUserService {
 	
 	public ChatUser findByUsername(String username);
 	
+	public ChatUser findByUserEmail(String email);
+	
 }

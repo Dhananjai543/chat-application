@@ -59,4 +59,16 @@ public class ChatUserDAOImpl implements ChatUserDAO{
 	        return null;
 	    }
 	}
+
+	@Override
+	public ChatUser findByUserEmail(String email) {
+		Session currentSession = sessionFactory.getCurrentSession();
+		Query<ChatUser> theQuery = currentSession.createQuery("from ChatUser where user_email=:e", ChatUser.class);
+		theQuery.setParameter("e", email);
+		try {
+	        return theQuery.getSingleResult();
+	    } catch (NoResultException nre) {
+	        return null;
+	    }
+	}
 }
