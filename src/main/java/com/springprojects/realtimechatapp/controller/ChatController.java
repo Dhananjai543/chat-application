@@ -1,36 +1,33 @@
 package com.springprojects.realtimechatapp.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-
 import com.springprojects.realtimechatapp.entity.ChatMessage;
-import com.springprojects.realtimechatapp.entity.ChatUser;
-import com.springprojects.realtimechatapp.service.ChatUserService;
 
 @Controller
 public class ChatController {
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 	
     @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/public")
-    public ChatMessage sendMessage(@Payload ChatMessage chatMessage){
-        return chatMessage;
+	//@SendTo("/topic/public")
+    public void sendMessage(@Payload ChatMessage chatMessage){
+    	//return chatMessage;
+        simpMessagingTemplate.convertAndSend("/topic/" + chatMessage.getChatGroupName(), chatMessage);
     }
 
     @MessageMapping("/chat.addUser")
-    @SendTo("/topic/public")
-    public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor){
+    //@SendTo("/topic/public")
+    public void addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor){
         //add username in websocket session
-//        headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-    	headerAccessor.getSessionAttributes().put("username","Dhananjai");
-        return chatMessage;
+        headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
+    	//headerAccessor.getSessionAttributes().put("username","Dhananjai");
+        simpMessagingTemplate.convertAndSend("/topic/" + chatMessage.getChatGroupName(), chatMessage);
     }
 }

@@ -29,12 +29,15 @@ public class ChatGroupController {
         	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String currentUsername = auth.getName();
             System.out.println("Current Username: " + currentUsername);
-            model.addAttribute("currentUsername", currentUsername);
+            model.addAttribute("chatgroup", chatgroup);
             return "message-page";
         } else {
         	model.addAttribute("errorMessage", "Sorry! You entered an invalid group name.");
             return "chat-page";
         }
 	}
-	
+
+
+
+
 }

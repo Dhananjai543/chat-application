@@ -12,6 +12,9 @@ var connectPage = document.querySelector('#connect-page');
 var stompClient = null;
 var username = null;
 
+var chatGroupName = null;
+
+
 var colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
@@ -47,14 +50,14 @@ function connect(event) {
 
 
 function onConnected() {
-    // Subscribe to the Public Topic
-    stompClient.subscribe('/topic/public', onMessageReceived);
+    // Subscribe to the Public Topic, whenever message is sent to this topic, onMessageReceived callback will be executed
+    stompClient.subscribe('/topic/' + chatGroupName, onMessageReceived);
 
     // Tell your username to the server
     stompClient.send("/app/chat.addUser",
-        {},
-        JSON.stringify({sender: username, messageType: 'JOIN'})
-    )
+            {},
+            JSON.stringify({sender: username, messageType: 'JOIN', chatGroupName: chatGroupName})
+        )
 
     connectingElement.classList.add('hidden');
 }
@@ -72,7 +75,8 @@ function sendMessage(event) {
         var chatMessage = {
             sender: username,
             content: messageInput.value,
-            messageType: 'CHAT'
+            messageType: 'CHAT',
+            chatGroupName: chatGroupName
         };
         stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
@@ -137,6 +141,8 @@ function getAvatarColor(messageSender) {
 //document.getElementById('connectButton').addEventListener('submit', connect, true);
 
 document.addEventListener('DOMContentLoaded', function() {
+    chatGroupName = chatgroup;
+    document.getElementById('chat-header').textContent = chatGroupName
     getUsername();
     var connectButton = document.getElementById('connectButton');
     connectButton.addEventListener('submit', connect);
