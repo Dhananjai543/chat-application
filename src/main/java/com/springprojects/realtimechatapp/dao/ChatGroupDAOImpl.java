@@ -26,8 +26,8 @@ public class ChatGroupDAOImpl implements ChatGroupDAO{
 
 	@Override
 	public void saveChatGroup(ChatGroup theChatGroup) {
-		// TODO Auto-generated method stub
-		
+		Session currentSession = sessionFactory.getCurrentSession();
+		currentSession.saveOrUpdate(theChatGroup);
 	}
 
 	@Override

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Create Group Form</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+<div class="container">
+    <h2>Create secret chat group</h2>
+    <form th:action="@{/processCreateGroupForm}" th:object="${chatGroup}" method="post">
+
+        <p th:if="${error}" th:text="${error}" class="error"></p>
+
+        <div class="input-group">
+            <label for="chatGroupName">Name</label>
+            <input type="text" id="chatGroupName" th:field="*{group_name}" />
+        </div>
+
+        <button type="submit">Create</button>
+    </form>
+    <p>Already have a secret group? <a href="/showChatPage">Start chatting</a></p>
+</div>
+</body>
+
+</html>

@@ -94,7 +94,5 @@ public class ChatUserController {
         ChatUser loggedInUser = chatUserService.findByUserEmail(userEmail);
         return loggedInUser.getUser_name();
     }
-    
-    
 
 }

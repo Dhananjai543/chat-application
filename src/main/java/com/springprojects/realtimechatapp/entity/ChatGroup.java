@@ -15,6 +15,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name="chat_group")
@@ -26,6 +27,7 @@ public class ChatGroup {
 	private int group_id;
 	
 	@Column(name="group_name")
+	@Size(min = 5, max = 20, message="Group name must be between 5 to 20 characters")
 	private String group_name;
 	
 	@ManyToMany(fetch=FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH,CascadeType.REFRESH })
