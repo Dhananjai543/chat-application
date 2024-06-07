@@ -16,8 +16,10 @@ body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 1rem;
     line-height: 1.58;
-    color: #333;
-    background-color: #f4f4f4;
+    background-image: url('https://as1.ftcdn.net/v2/jpg/03/27/51/56/1000_F_327515607_Hcps04aaEc7Ki43d1XZPxwcv0ZaIaorh.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
     height: 100%;
 }
 
@@ -36,6 +38,7 @@ body {
     min-height: 38px;
     font-size: 15px;
     border: 1px solid #c8c8c8;
+    margin-bottom: 20px;
 }
 
 .form-group {
@@ -151,6 +154,7 @@ button.accent {
 
 #chat-page #messageForm {
     padding: 20px;
+    margin-bottom: 0px
 }
 
 #chat-page ul li {
@@ -223,9 +227,12 @@ button.accent {
     text-align: center;
     padding: 15px;
     border-bottom: 1px solid #ececec;
+    font-size: 40px;
+    font-family: 'Bradley Hand', cursive;
+    color: #6db33f;
 }
 
-.chat-header h2 {
+.chat-header h3 {
     margin: 0;
     font-weight: 500;
 }
@@ -281,8 +288,9 @@ button.accent {
         top: 60px;
     }
 
-    .chat-header h2 {
-        font-size: 1.1em;
+    .chat-header h3 {
+        font-size: 7.1em;
+        font-family: 'Bradley Hand', cursive;
     }
 }
 

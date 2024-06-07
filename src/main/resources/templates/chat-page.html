@@ -4,46 +4,43 @@
 <head>
 	<title>Chat Page</title>
 	<link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}">
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 
-<!--To use variables from model attribute inside javascript files, use this approach below-->
-
 <body>
-<noscript>
-	<h2>Sorry! Your browser doesn't support Javascript</h2>
-</noscript>
+<div class="top-right-buttons" >
+	<div id="top-right-buttons">
+	    <button id="logoutButton" type="button">Logout</button>
+	</div>
+</div>
+<div class="parent-container">
+	<div id="chatgroup-page" class="container">
+		<h2>Chat Page</h2>
+		<form id="chatGroupFindForm" name="chatGroupFindForm" action="#" th:action="@{/findChatGroup}" method="post">
+			<div th:if="${errorMessage}" class="error">
+				<i th:text="${errorMessage}"></i>
+			</div>
+			<label for="chatgroup">Enter secret group code:</label>
+			<input type="text" id="chatgroup" name="chatgroup">
+			<button type="submit">Find</button>
+		</form>
+		<p><a href="/showCreateGroupForm">Create</a> new secret chat group?</p>
+	</div>
 
-<div id="chatgroup-page" class="container">
-	<h2>Chat Page</h2>
-	<form id="chatGroupFindForm" name="chatGroupFindForm" action="#" th:action="@{/findChatGroup}" method="post">
-
-		<div th:if="${errorMessage}">
-			<i th:text="${errorMessage}"></i>
-		</div>
-
-		<label for="chatgroup">Enter secret group code:</label>
-		<input type="text" id="chatgroup" name="chatgroup">
-		<button type="submit">Find</button>
-	</form>
-
-	<p><a href="/showCreateGroupForm">Create</a> new secret chat group?</p>
-
+	<div id="privatechat-page" class="container">
+		<h2>Private Chat</h2>
+		<form id="privateChatForm" name="privateChatForm" action="#" th:action="@{/privateChat}" method="post">
+			<div th:if="${errorMessage2}" class="error">
+				<i th:text="${errorMessage2}"></i>
+			</div>
+			<label for="username">Enter username:</label>
+			<input type="text" id="username" name="username">
+			<button type="submit">Find</button>
+		</form>
+	</div>
 </div>
 
-<div id="privatechat-page" class="container">
-	<h2>Private Chat</h2>
-	<form id="privateChatForm" name="privateChatForm" action="#" th:action="@{/privateChat}" method="post">
-
-		<div th:if="${errorMessage2}">
-			<i th:text="${errorMessage2}"></i>
-		</div>
-
-		<label for="username">Enter username:</label>
-		<input type="text" id="username" name="username">
-		<button type="submit">Find</button>
-	</form>
-
-</div>
+<script src="/js/chat-page.js"></script>
 </body>
 
 </html>
