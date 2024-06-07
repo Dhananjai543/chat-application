@@ -9,6 +9,7 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         var chatgroup = /*[[${chatgroup}]]*/ 'default';
+        var receiver = /*[[${receiver}]]*/ 'default';
         /*]]>*/
     </script>
 </head>
@@ -16,6 +17,13 @@
 <noscript>
     <h2>Sorry! Your browser doesn't support Javascript</h2>
 </noscript>
+
+<div class="top-right-buttons" >
+    <div id="top-right-buttons" class="hidden">
+        <button id="homeButton" type="button">Home</button>
+        <button id="logoutButton" type="button">Logout</button>
+    </div>
+</div>
 
 <div id="connect-page">
 	<form id="connectButton" name="connectButton">

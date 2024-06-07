@@ -33,9 +33,9 @@ public class ChatGroupController {
 		// the database
 		ChatGroup foundGroup = chatGroupService.findByChatGroupName(chatgroup);
         if (foundGroup != null) {
-        	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String currentUsername = auth.getName();
-            System.out.println("Current Username: " + currentUsername);
+//        	  Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//            String currentUsername = auth.getName();
+//            System.out.println("Current Username: " + currentUsername);
             model.addAttribute("chatgroup", chatgroup);
             return "message-page";
         } else {

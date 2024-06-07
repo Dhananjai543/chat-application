@@ -7,10 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.springprojects.realtimechatapp.entity.Authority;
 import com.springprojects.realtimechatapp.entity.ChatUser;
@@ -94,5 +91,21 @@ public class ChatUserController {
         ChatUser loggedInUser = chatUserService.findByUserEmail(userEmail);
         return loggedInUser.getUser_name();
     }
+
+	@PostMapping("/privateChat")
+	public String privateChat(@RequestParam("username") String username, Model model){
+		try{
+			ChatUser foundUser = chatUserService.findByUsername(username);
+			if(foundUser == null){
+				model.addAttribute("errorMessage2","Sorry! User does not exist");
+				return "chat-page";
+			}
+			model.addAttribute("receiver",foundUser.getUser_name());
+			return "message-page";
+		}catch (Exception e){
+			model.addAttribute("errorMessage2","Oops! Error retrieving the user. Please try later");
+			return "chat-page";
+		}
+	}
 
 }

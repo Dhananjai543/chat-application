@@ -30,7 +30,20 @@
 
 </div>
 
+<div id="privatechat-page" class="container">
+	<h2>Private Chat</h2>
+	<form id="privateChatForm" name="privateChatForm" action="#" th:action="@{/privateChat}" method="post">
 
+		<div th:if="${errorMessage2}">
+			<i th:text="${errorMessage2}"></i>
+		</div>
+
+		<label for="username">Enter username:</label>
+		<input type="text" id="username" name="username">
+		<button type="submit">Find</button>
+	</form>
+
+</div>
 </body>
 
 </html>

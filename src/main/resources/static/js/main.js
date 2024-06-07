@@ -9,10 +9,13 @@ var connectingElement = document.querySelector('.connecting');
 var connectButton = document.querySelector('#connectButton');
 var connectPage = document.querySelector('#connect-page');
 
+var topButtons = document.querySelector('#top-right-buttons');
+
 var stompClient = null;
 var username = null;
 
 var chatGroupName = null;
+var receiverUsername = null;
 
 
 var colors = [
@@ -38,6 +41,7 @@ function connect(event) {
 
         connectPage.classList.add('hidden');
         chatPage.classList.remove('hidden');
+        topButtons.classList.remove('hidden');
 
         var socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
@@ -51,15 +55,34 @@ function connect(event) {
 
 function onConnected() {
     // Subscribe to the Public Topic, whenever message is sent to this topic, onMessageReceived callback will be executed
-    stompClient.subscribe('/topic/' + chatGroupName, onMessageReceived);
+    if(chatGroupName != null){  //group chat
+        stompClient.subscribe('/topic/' + chatGroupName, onMessageReceived);
+    }else{ //private chat
+        var privateTopic = generateHashString(username, receiverUsername);
+        stompClient.subscribe('/topic/' + "pvt_" + privateTopic, onMessageReceived);
+    }
 
     // Tell your username to the server
     stompClient.send("/app/chat.addUser",
             {},
-            JSON.stringify({sender: username, messageType: 'JOIN', chatGroupName: chatGroupName})
+            JSON.stringify({sender: username, messageType: 'JOIN', chatGroupName: chatGroupName ? chatGroupName : receiverUsername})
         )
 
     connectingElement.classList.add('hidden');
+}
+
+
+function generateHashString(str1, str2) {
+    var combinedStr = [str1, str2].sort().join('');
+    var hash = 0;
+    for (var i = 0; i < combinedStr.length; i++) {
+        var char = combinedStr.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash |= 0; // Convert to 32bit integer
+    }
+
+    var hashStr = Math.abs(hash).toString(36).toUpperCase();
+    return hashStr.substring(0, 6);
 }
 
 
@@ -76,7 +99,7 @@ function sendMessage(event) {
             sender: username,
             content: messageInput.value,
             messageType: 'CHAT',
-            chatGroupName: chatGroupName
+            chatGroupName: chatGroupName ? chatGroupName : "pvt_" + generateHashString(username, receiverUsername)
         };
         stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
@@ -142,9 +165,25 @@ function getAvatarColor(messageSender) {
 
 document.addEventListener('DOMContentLoaded', function() {
     chatGroupName = chatgroup;
-    document.getElementById('chat-header').textContent = chatGroupName
+    receiverUsername = receiver;
+    if(chatGroupName != null){
+        document.getElementById('chat-header').textContent = chatGroupName
+    }else{
+        document.getElementById('chat-header').textContent = "Chatting with " + receiverUsername
+    }
     getUsername();
     var connectButton = document.getElementById('connectButton');
     connectButton.addEventListener('submit', connect);
     messageForm.addEventListener('submit', sendMessage)
+    
+    var homeButton = document.getElementById('homeButton');
+	var logoutButton = document.getElementById('logoutButton');
+    homeButton.addEventListener('click', function() {
+        window.location.href = '/showChatPage';
+    });
+
+    logoutButton.addEventListener('click', function() {
+        fetch('/logout', { method: 'POST' })
+            .then(() => window.location.href = '/showLoginForm');
+    });
 });
