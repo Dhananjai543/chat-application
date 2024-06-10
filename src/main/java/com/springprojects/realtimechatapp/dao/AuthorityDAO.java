@@ -3,7 +3,6 @@ package com.springprojects.realtimechatapp.dao;
 import java.util.List;
 
 import com.springprojects.realtimechatapp.entity.Authority;
-import com.springprojects.realtimechatapp.entity.ChatUser;
 
 
 public interface AuthorityDAO {

@@ -1,9 +1,6 @@
 package com.springprojects.realtimechatapp.controller;
 
-import com.springprojects.realtimechatapp.entity.ChatUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
