@@ -10,9 +10,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
@@ -37,13 +34,13 @@ public class ChatUser {
 	private String user_password;
 	
 	
-	@ManyToMany(fetch=FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH,CascadeType.REFRESH })
-	@JoinTable(
-			name="group_user",
-			joinColumns=@JoinColumn(name="user_id"),
-			inverseJoinColumns=@JoinColumn(name="group_id")
-			)
-	private List<ChatGroup> chatGroups;
+//	@ManyToMany(fetch=FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH,CascadeType.REFRESH })
+//	@JoinTable(
+//			name="group_user",
+//			joinColumns=@JoinColumn(name="user_id"),
+//			inverseJoinColumns=@JoinColumn(name="group_id")
+//			)
+//	private List<ChatGroup> chatGroups;
 	
 
     @OneToMany(fetch=FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="user_email")
@@ -91,14 +88,6 @@ public class ChatUser {
 	public void setUser_password(String user_password) {
 		this.user_password = user_password;
 	}
-
-	public List<ChatGroup> getChatGroups() {
-		return chatGroups;
-	}
-
-	public void setChatGroups(List<ChatGroup> chatGroups) {
-		this.chatGroups = chatGroups;
-	}
 	
 	
 	public List<Authority> getAuthorities() {
@@ -112,17 +101,10 @@ public class ChatUser {
 		this.authorities = authorities;
 	}
 
-	public void addchatGroup(ChatGroup chatGroup) {
-		if(chatGroups == null) {
-			chatGroups = new ArrayList<>();
-		}
-		chatGroups.add(chatGroup);
-	}
-
 	@Override
 	public String toString() {
 		return "ChatUser [user_id=" + user_id + ", user_name=" + user_name + ", user_email=" + user_email
-				+ ", user_password=" + user_password + ", chatGroups=" + chatGroups + "]";
+				+ ", user_password=" + user_password + ", authorities=" + authorities + "]";
 	}
 
 	
