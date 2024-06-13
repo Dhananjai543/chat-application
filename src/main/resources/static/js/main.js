@@ -102,11 +102,21 @@ function sendMessage(event) {
             chatGroupName: chatGroupName ? chatGroupName : "pvt_" + generateHashString(username, receiverUsername)
         };
         stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+//        sendMessageToKafka(chatMessage); // send message to Kafka
         messageInput.value = '';
     }
     event.preventDefault();
 }
 
+function sendMessageToKafka(message) {
+    fetch('/api/sendMessageToKafka', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+    });
+}
 
 function onMessageReceived(payload) {
     var message = JSON.parse(payload.body);

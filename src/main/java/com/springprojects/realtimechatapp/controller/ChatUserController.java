@@ -55,20 +55,22 @@ public class ChatUserController {
 		}
 
 		try {
+
+			ChatUser existingUser = chatUserService.findByUsername(chatUser.getUser_name());
+			if(existingUser != null){
+				model.addAttribute("error", "OOPS!! This username is already taken. Please use some other username");
+				return "sign-up-form";
+			}
+
 			System.out.println(chatUser.toString());
 
 			// password encryption
 //            chatUser.setUser_password(passwordEncoder.encode(chatUser.getUser_password()));
-			System.out.println(chatUser.getUser_password());
 
 			chatUser.setUser_password("{noop}" + chatUser.getUser_password());
 			chatUserService.saveChatUser(chatUser);
-//            
             Authority authority = new Authority(chatUser.getUser_email(), "ROLE_USER");
             authorityService.saveOrUpdateAuthority(authority);
-//            
-//         // Add the Authority to the ChatUser
-//            chatUser.getAuthorities().add(authority);
 
 			return "chat-page";
 		} catch (Exception e) {
