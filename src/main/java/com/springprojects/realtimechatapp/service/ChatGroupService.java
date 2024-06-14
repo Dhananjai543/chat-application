@@ -3,7 +3,6 @@ package com.springprojects.realtimechatapp.service;
 import java.util.List;
 
 import com.springprojects.realtimechatapp.entity.ChatGroup;
-import com.springprojects.realtimechatapp.entity.ChatUser;
 
 public interface ChatGroupService {
 	

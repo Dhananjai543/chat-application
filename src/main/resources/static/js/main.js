@@ -20,8 +20,11 @@ var receiverUsername = null;
 
 var colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
-    '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
+    '#ffc107', '#ff85af', '#FF9800', '#39bbb0',
+    '#8e44ad', '#2ecc71', '#9b59b6', '#f1c40f',
+    '#e74c3c', '#34495e', '#2c3e50', '#95a5a6'
 ];
+
 
 function getUsername() {
     console.log("Retrieving username");
@@ -31,6 +34,7 @@ function getUsername() {
             username = data;
         });
 }
+
 // JavaScript (file.js)
 function connect(event) {
 
@@ -69,6 +73,11 @@ function onConnected() {
         )
 
     connectingElement.classList.add('hidden');
+    document.getElementById('loader').style.display = 'block';
+    setTimeout(function() {
+        document.getElementById('loader').style.display = 'none';
+        getOldMessages();
+    }, 20000);
 }
 
 
@@ -102,20 +111,9 @@ function sendMessage(event) {
             chatGroupName: chatGroupName ? chatGroupName : "pvt_" + generateHashString(username, receiverUsername)
         };
         stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
-//        sendMessageToKafka(chatMessage); // send message to Kafka
         messageInput.value = '';
     }
     event.preventDefault();
-}
-
-function sendMessageToKafka(message) {
-    fetch('/api/sendMessageToKafka', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(message),
-    });
 }
 
 function onMessageReceived(payload) {
@@ -156,11 +154,61 @@ function onMessageReceived(payload) {
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 
+function addElement(message){
+	var messageElement = document.createElement('li');
+
+    if(message.messageType === 'JOIN') {
+        messageElement.classList.add('event-message');
+        message.content = message.sender + ' joined!';
+    } else if (message.messageType === 'LEAVE') {
+        messageElement.classList.add('event-message');
+        message.content = message.sender + ' left!';
+    } else {
+        messageElement.classList.add('chat-message');
+
+        var avatarElement = document.createElement('i');
+        var avatarText = document.createTextNode(message.sender[0]);
+        avatarElement.appendChild(avatarText);
+        avatarElement.style['background-color'] = getAvatarColor(message.sender);
+
+        messageElement.appendChild(avatarElement);
+
+        var usernameElement = document.createElement('span');
+        var usernameText = document.createTextNode(message.sender);
+        usernameElement.appendChild(usernameText);
+        messageElement.appendChild(usernameElement);
+    }
+
+    var textElement = document.createElement('p');
+    var messageText = document.createTextNode(message.content);
+    textElement.appendChild(messageText);
+
+    messageElement.appendChild(textElement);
+
+    messageArea.appendChild(messageElement);
+    messageArea.scrollTop = messageArea.scrollHeight;
+}
+
+function getOldMessages() {
+    console.log("Retrieving old messages");
+    fetch('/messages')
+        .then(response => response.json())
+        .then(messages => {
+            messages.forEach(message => {
+                console.log("Previous message: ", message);
+                addElement(message);
+            });
+        })
+        .catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+}
+
 
 function getAvatarColor(messageSender) {
     var hash = 0;
     for (var i = 0; i < messageSender.length; i++) {
-        hash = 31 * hash + messageSender.charCodeAt(i);
+        hash = 31 * hash + messageSender.charCodeAt(i) + i;
     }
     var index = Math.abs(hash % colors.length);
     return colors[index];
@@ -174,6 +222,8 @@ function getAvatarColor(messageSender) {
 //document.getElementById('connectButton').addEventListener('submit', connect, true);
 
 document.addEventListener('DOMContentLoaded', function() {
+
+    document.getElementById('loader').style.display = 'none';
     chatGroupName = chatgroup;
     receiverUsername = receiver;
     if(chatGroupName != null){
@@ -182,6 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('chat-header').textContent = "Chatting with " + receiverUsername
     }
     getUsername();
+    
     var connectButton = document.getElementById('connectButton');
     connectButton.addEventListener('submit', connect);
     messageForm.addEventListener('submit', sendMessage)
