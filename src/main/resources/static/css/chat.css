@@ -19,12 +19,13 @@ body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 1rem;
     line-height: 1.58;
-    background-image: url('https://as1.ftcdn.net/v2/jpg/03/27/51/56/1000_F_327515607_Hcps04aaEc7Ki43d1XZPxwcv0ZaIaorh.jpg');
+    background-image: linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.35)), url('https://as1.ftcdn.net/v2/jpg/03/27/51/56/1000_F_327515607_Hcps04aaEc7Ki43d1XZPxwcv0ZaIaorh.jpg');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
     height: 100%;
-    width: 100%
+    width: 100%;
+    background-size: 120% auto; 
 }
 
 .clearfix:after {
@@ -132,6 +133,7 @@ button.accent {
 #chat-page {
     position: relative;
     height: 100%;
+    width: 70%;
 }
 
 .chat-container {
@@ -144,6 +146,7 @@ button.accent {
     height: calc(100% - 60px);
     max-height: 600px;
     position: relative;
+    padding-bottom: 10px;
 }
 
 #chat-page ul {
@@ -327,4 +330,9 @@ button.accent {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.stack-container {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
 }

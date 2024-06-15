@@ -72,13 +72,15 @@ function onConnected() {
             JSON.stringify({sender: username, messageType: 'JOIN', chatGroupName: chatGroupName ? chatGroupName : receiverUsername})
         )
 
-    connectingElement.classList.add('hidden');
+    //connectingElement.classList.add('hidden');
+    connectingElement.textContent = "Loading your messages...";
 //    document.getElementById('loader').style.display = 'block';
     document.getElementById('loader').classList.remove('hidden');
     setTimeout(function() {
 //        document.getElementById('loader').style.display = 'none';
         document.getElementById('loader').classList.add('hidden');
         getOldMessages();
+        connectingElement.classList.add('hidden');
     }, 20000);
 }
 

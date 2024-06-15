@@ -3,6 +3,10 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    z-index: 1000;
+    position: fixed;
+	top: 33%;
+	left: 43%;
 }
 
 .spinner-container :root {
