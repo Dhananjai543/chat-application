@@ -73,9 +73,11 @@ function onConnected() {
         )
 
     connectingElement.classList.add('hidden');
-    document.getElementById('loader').style.display = 'block';
+//    document.getElementById('loader').style.display = 'block';
+    document.getElementById('loader').classList.remove('hidden');
     setTimeout(function() {
-        document.getElementById('loader').style.display = 'none';
+//        document.getElementById('loader').style.display = 'none';
+        document.getElementById('loader').classList.add('hidden');
         getOldMessages();
     }, 20000);
 }
@@ -223,7 +225,8 @@ function getAvatarColor(messageSender) {
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    document.getElementById('loader').style.display = 'none';
+//    document.getElementById('loader').style.display = 'none';
+    document.getElementById('loader').classList.add('hidden');
     chatGroupName = chatgroup;
     receiverUsername = receiver;
     if(chatGroupName != null){

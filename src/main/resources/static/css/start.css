@@ -1,0 +1,62 @@
+.start-container * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.start-container body, html {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+}
+
+.start-container .center-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.start-container .profile-photo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.start-container .profile-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.start-container .form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#start-chatting-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#start-chatting-button:hover {
+    background-color: #0056b3;
+}
+
+.start-container .accent {
+    font-weight: bold;
+}
