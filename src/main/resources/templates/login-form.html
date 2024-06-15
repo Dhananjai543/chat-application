@@ -7,6 +7,9 @@
 </head>
 
 <body>
+
+	<div id="preloader"></div>
+
 	<div class="container">
 		<h2>Login Page</h2>
 		<form action="#" th:action="@{/authenticateTheUser}" method="post">
@@ -30,6 +33,16 @@
 		</form>
 		<p>Don't have an account? <a href="/showSignUpForm">Sign up</a></p>
 	</div>
+
+	<script>
+		var loader = document.getElementById("preloader");
+		window.addEventListener("load", function(){
+			setTimeout(function() {
+                loader.classList.add("hidden");
+            }, 3000); // 3000 milliseconds = 3 seconds
+		});
+
+	</script>
 </body>
 
 </html>

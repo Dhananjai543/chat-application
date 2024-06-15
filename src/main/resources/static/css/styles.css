@@ -367,3 +367,12 @@ button.accent {
     background-color: rgb(255, 0, 128); /* Replace with the color you want */
     color: white; /* Replace with the color you want for the text */
 }
+
+#preloader {
+    background: #FFF url('../images/shinchan-preloader.gif') no-repeat center center;
+    background-size: 15%;
+    height: 100vh;
+    width: 100%;
+    position: fixed;
+    z-index: 1000;
+}
