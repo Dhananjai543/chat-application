@@ -30,8 +30,7 @@ public class ChatUser {
 	private String user_email;
 	
 	@Column(name="user_password")
-	@Size(min = 8, max = 20, message = "Password must be between 8 and 12 characters")
-	private String user_password;
+	private String user_password;  //password validations handled in controller class
 	
 	
 //	@ManyToMany(fetch=FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH,CascadeType.REFRESH })

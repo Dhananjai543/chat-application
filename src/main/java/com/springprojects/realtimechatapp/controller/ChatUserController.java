@@ -3,6 +3,7 @@ package com.springprojects.realtimechatapp.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,14 +20,13 @@ import jakarta.validation.Valid;
 @Controller
 public class ChatUserController {
 
-//    @Autowired
-//    private BCryptPasswordEncoder passwordEncoder;
-
 	@Autowired
 	private ChatUserService chatUserService;
 
 	@Autowired
 	private AuthorityService authorityService;
+
+	private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	@GetMapping("/showLoginForm")
 	public String showLoginForm() {
@@ -62,12 +62,16 @@ public class ChatUserController {
 				return "sign-up-form";
 			}
 
+			String rawPassword = chatUser.getUser_password();
+			if (rawPassword.length() < 8 || rawPassword.length() > 12) {
+				model.addAttribute("error", "Password must be between 8 and 12 characters");
+				return "sign-up-form";
+			}
+
+			chatUser.setUser_password("{bcrypt}" + passwordEncoder.encode(chatUser.getUser_password()));
 			System.out.println(chatUser.toString());
 
-			// password encryption
-//            chatUser.setUser_password(passwordEncoder.encode(chatUser.getUser_password()));
-
-			chatUser.setUser_password("{noop}" + chatUser.getUser_password());
+			//chatUser.setUser_password("{noop}" + chatUser.getUser_password());
 			chatUserService.saveChatUser(chatUser);
             Authority authority = new Authority(chatUser.getUser_email(), "ROLE_USER");
             authorityService.saveOrUpdateAuthority(authority);

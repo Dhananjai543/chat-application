@@ -370,9 +370,9 @@ button.accent {
 
 #preloader {
     background: #FFF url('../images/shinchan-preloader.gif') no-repeat center center;
-    background-size: 15%;
+    background-size: 20%;
     height: 100vh;
     width: 100%;
     position: fixed;
-    z-index: 1000;
+    z-index: 9999;
 }
