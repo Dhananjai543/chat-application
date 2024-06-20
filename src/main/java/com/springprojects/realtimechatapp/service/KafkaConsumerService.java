@@ -2,6 +2,7 @@ package com.springprojects.realtimechatapp.service;
 
 import com.springprojects.realtimechatapp.entity.ChatMessage;
 import com.springprojects.realtimechatapp.entity.MessageType;
+import com.springprojects.realtimechatapp.utilities.CipherHelper;
 import com.springprojects.realtimechatapp.utilities.MessageTracker;
 
 import lombok.Getter;
@@ -38,7 +39,6 @@ public class KafkaConsumerService {
     @Getter
     private List<ChatMessage> messages;
 
-
     public void addListener(String chatGroupName, String username) {
     	
     	messages =  new ArrayList<>();
@@ -56,9 +56,12 @@ public class KafkaConsumerService {
         container.setupMessageListener((MessageListener<String, String>) message -> {
 
             System.out.println("Fetched message: "+ message);
+            String messageValue = message.value();
+            String decryptedMessageString = CipherHelper.decrypt(messageValue);
             try {
                 Pattern pattern = Pattern.compile("ChatMessage\\(content=(.*), sender=(.*), messageType=(.*), chatGroupName=(.*)\\)");
-                Matcher matcher = pattern.matcher(message.value());
+                assert decryptedMessageString != null;
+                Matcher matcher = pattern.matcher(decryptedMessageString);
 
                 if (matcher.find()) {
                     String content = matcher.group(1);
@@ -72,6 +75,7 @@ public class KafkaConsumerService {
                     if(!MessageTracker.checkMessageIfAlreadyConsumed(username, key)){
                         System.out.println("Message key [" + key + "] not yet consumed for user [" + username + "]");
                         messages.add(chatMessage);
+
                         System.out.println("Consumed message: " + message);
                     }else{
                         System.out.println("Message key [" + key + "] already consumed for user [" + username + "]");

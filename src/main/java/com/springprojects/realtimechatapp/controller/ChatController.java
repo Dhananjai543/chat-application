@@ -1,6 +1,7 @@
 package com.springprojects.realtimechatapp.controller;
 
 import com.springprojects.realtimechatapp.service.KafkaConsumerService;
+import com.springprojects.realtimechatapp.utilities.CipherHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -35,18 +36,20 @@ public class ChatController {
     private KafkaConsumerService kafkaConsumerService;
 
     @MessageMapping("/chat.sendMessage")
-	//@SendTo("/topic/public")
     public void sendMessage(@Payload ChatMessage chatMessage){
-    	//return chatMessage;
-        kafkaTopicCreator.createTopicIfNotExist(chatMessage.getChatGroupName())
+        //return chatMessage;
+        String chatGroupName = chatMessage.getChatGroupName();
+        String encryptedMessage = CipherHelper.encrypt(chatMessage.toString());
+
+        kafkaTopicCreator.createTopicIfNotExist(chatGroupName)
                 .exceptionally(ex -> {
                     // handle exception here
                     System.err.println("Failed to create topic: " + ex.getMessage());
                     return null;
                 }).thenRun(() -> {
-                    kafkaTemplate.send(chatMessage.getChatGroupName(), chatMessage.toString());
+                    kafkaTemplate.send(chatGroupName, encryptedMessage);
                 });;
-        simpMessagingTemplate.convertAndSend("/topic/" + chatMessage.getChatGroupName(), chatMessage);
+        simpMessagingTemplate.convertAndSend("/topic/" + chatGroupName, chatMessage);
     }
 
     @MessageMapping("/chat.addUser")
