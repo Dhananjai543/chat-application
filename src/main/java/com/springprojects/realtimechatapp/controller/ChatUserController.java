@@ -16,6 +16,8 @@ import com.springprojects.realtimechatapp.service.AuthorityService;
 import com.springprojects.realtimechatapp.service.ChatUserService;
 
 import jakarta.validation.Valid;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class ChatUserController {
@@ -76,6 +78,7 @@ public class ChatUserController {
             Authority authority = new Authority(chatUser.getUser_email(), "ROLE_USER");
             authorityService.saveOrUpdateAuthority(authority);
 
+			model.addAttribute("accountCreated", true);
 			return "chat-page";
 		} catch (Exception e) {
 			System.out.println("Exception: " + e.getMessage());

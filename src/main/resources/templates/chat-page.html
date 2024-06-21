@@ -5,6 +5,18 @@
 	<title>Chat Page</title>
 	<link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}">
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+	<script th:inline="javascript">
+		var accountCreated = /*[[${accountCreated}]]*/ 'false';
+
+        if (accountCreated) {
+			console.log("showing alert")
+            alert("Account created, redirecting to login page..."); // Show a pop-up message
+
+            window.location.href = "/showLoginForm"; // Redirect to the login page 
+        }
+	</script>
+
 </head>
 
 <body>
