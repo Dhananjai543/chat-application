@@ -69,7 +69,7 @@ function onConnected() {
     // Tell your username to the server
     stompClient.send("/app/chat.addUser",
             {},
-            JSON.stringify({sender: username, messageType: 'JOIN', chatGroupName: chatGroupName ? chatGroupName : receiverUsername})
+            JSON.stringify({sender: username, messageType: 'JOIN', chatGroupName: chatGroupName ? chatGroupName : "pvt_" + privateTopic})
         )
 
     //connectingElement.classList.add('hidden');
@@ -194,8 +194,9 @@ function addElement(message){
 }
 
 function getOldMessages() {
+	var gname = chatGroupName ? chatGroupName : "pvt_" + generateHashString(username, receiverUsername);
     console.log("Retrieving old messages");
-    fetch('/messages')
+    fetch('/messages?username=' + encodeURIComponent(username) + '&' + 'gname=' + encodeURIComponent(gname))
         .then(response => response.json())
         .then(messages => {
             messages.forEach(message => {

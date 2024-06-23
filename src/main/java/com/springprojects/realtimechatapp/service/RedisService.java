@@ -1,17 +1,28 @@
 package com.springprojects.realtimechatapp.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import com.springprojects.realtimechatapp.entity.ChatMessage;
+import com.springprojects.realtimechatapp.entity.MessageType;
+
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component 
 @RequiredArgsConstructor 
+@Slf4j
 public class RedisService { 
 	
 	@Autowired
@@ -33,6 +44,11 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, value); 
         redisTemplate.expire(key, timeout, timeUnit); 
     } 
+    
+    public <V> void setWithoutExpiration(String key, V value) { 
+    	System.out.println("Storing message to redis cache without expiration: Key[" + key + "]");
+        redisTemplate.opsForValue().set(key, value); 
+    } 
 
     public <V> V get(String key) { 
         return (V) redisTemplate.opsForValue().get(key); 
@@ -41,4 +57,56 @@ public class RedisService {
     public Boolean hasKey(String key) { 
         return redisTemplate.hasKey(key); 
     } 
+    
+    public boolean hasKeyLike(String keyword) {
+    	Set<String> keys = redisTemplate.keys(keyword+"*");
+    	return keys != null && !keys.isEmpty();
+    }
+    
+    public List<ChatMessage> getMessagesByKeyword(String keyword) {
+    	log.info("Retrieving messages from redis. Keyword = [" + keyword + "]");
+        Set<String> keys = redisTemplate.keys(keyword + "*");
+        if (keys == null || keys.isEmpty()) {
+            return Collections.emptyList();
+        }
+        
+        List<String> sortedKeys = new ArrayList<>();
+        sortedKeys.addAll(keys);
+        Collections.sort(sortedKeys, new Comparator<String>() {
+            @Override
+            public int compare(String a, String b) {
+                // Extract the numeric part after the '-' character
+                int numA = Integer.parseInt(a.substring(a.indexOf('-') + 1));
+                int numB = Integer.parseInt(b.substring(b.indexOf('-') + 1));
+                
+                return Integer.compare(numA, numB);
+            }
+        });
+        List<ChatMessage> messages = new ArrayList<>();
+        for (String key : sortedKeys) {
+            String message = redisTemplate.opsForValue().get(key).toString();
+            System.out.println("Decrypted message for key [" +key+ "] : " + message);
+            try {
+                Pattern pattern = Pattern.compile("ChatMessage\\(content=(.*), sender=(.*), messageType=(.*), chatGroupName=(.*)\\)");
+                assert message != null;
+                Matcher matcher = pattern.matcher(message);
+
+                if (matcher.find()) {
+                    String content = matcher.group(1);
+                    String sender = matcher.group(2);
+                    MessageType messageType = MessageType.valueOf(matcher.group(3));
+                    String currChatGroupName = matcher.group(4);
+
+                    ChatMessage chatMessage = new ChatMessage(content, sender, messageType, currChatGroupName);
+                    messages.add(chatMessage);
+                }
+            }catch (Exception e) {
+            	System.err.println("Failed to deserialize redis message: " + e.getMessage());
+            }
+            
+        }
+        return messages;
+    }
+
+
 } 

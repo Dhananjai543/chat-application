@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.springprojects.realtimechatapp.entity.ChatGroup;
 import com.springprojects.realtimechatapp.service.ChatGroupService;
+import com.springprojects.realtimechatapp.service.KafkaTopicCreator;
 
 import jakarta.validation.Valid;
 
@@ -22,6 +23,9 @@ public class ChatGroupController {
 	
 	@Autowired
 	private ChatGroupService chatGroupService;
+	
+	@Autowired
+    private KafkaTopicCreator kafkaTopicCreator;
 	
 	
 	@PostMapping("/findChatGroup")
@@ -66,6 +70,7 @@ public class ChatGroupController {
 				return "create-group-form";
 			}
     		chatGroupService.saveChatGroup(chatGroup);
+    		
     		model.addAttribute("chatgroup", chatGroup.getGroup_name());
             return "message-page";
     	}catch(Exception e) {

@@ -1,25 +1,29 @@
 package com.springprojects.realtimechatapp.controller;
 
-import com.springprojects.realtimechatapp.service.KafkaConsumerService;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.springprojects.realtimechatapp.entity.ChatMessage;
+import com.springprojects.realtimechatapp.service.KafkaConsumerService;
 import com.springprojects.realtimechatapp.service.KafkaTopicCreator;
+import com.springprojects.realtimechatapp.service.RedisService;
+import com.springprojects.realtimechatapp.utilities.CipherHelper;
 import com.springprojects.realtimechatapp.utilities.MessageTracker;
 
-import org.springframework.web.bind.annotation.GetMapping;
-
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
+@Slf4j
 public class ChatController {
 
     @Autowired
@@ -33,20 +37,26 @@ public class ChatController {
 
     @Autowired
     private KafkaConsumerService kafkaConsumerService;
+    
+    @Autowired
+    private RedisService redisService;
 
     @MessageMapping("/chat.sendMessage")
-	//@SendTo("/topic/public")
     public void sendMessage(@Payload ChatMessage chatMessage){
-    	//return chatMessage;
-        kafkaTopicCreator.createTopicIfNotExist(chatMessage.getChatGroupName())
-                .exceptionally(ex -> {
-                    // handle exception here
-                    System.err.println("Failed to create topic: " + ex.getMessage());
-                    return null;
-                }).thenRun(() -> {
-                    kafkaTemplate.send(chatMessage.getChatGroupName(), chatMessage.toString());
-                });;
-        simpMessagingTemplate.convertAndSend("/topic/" + chatMessage.getChatGroupName(), chatMessage);
+        //return chatMessage;
+        String chatGroupName = chatMessage.getChatGroupName();
+        String encryptedMessage = CipherHelper.encrypt(chatMessage.toString());
+
+        kafkaTopicCreator.createTopicIfNotExist(chatGroupName)
+        .exceptionally(ex -> {
+            // handle exception here
+            System.err.println("Failed to create topic: " + ex.getMessage());
+            return null;
+        }).thenRun(() -> {
+            kafkaTemplate.send(chatGroupName, encryptedMessage);
+        });;
+
+        simpMessagingTemplate.convertAndSend("/topic/" + chatGroupName, chatMessage);
     }
 
     @MessageMapping("/chat.addUser")
@@ -56,7 +66,14 @@ public class ChatController {
     	//clear previous messages loaded from map for currently logged in user
     	MessageTracker.clearMessages(chatMessage.getSender());
     	
-        kafkaConsumerService.addListener(chatMessage.getChatGroupName(), chatMessage.getSender());
+    	String username = chatMessage.getSender();
+    	boolean hasMessages = redisService.hasKeyLike(username);
+    	if(!hasMessages) {
+    		log.info("No messages present in redis for username [" +username+ "]. Adding listener!");
+    		kafkaConsumerService.addListener(chatMessage.getChatGroupName(), chatMessage.getSender());
+    	}else {
+    		log.info("Messages present in redis for username [" +username+ "]. Skip adding listener!");
+    	}
         
     	//add username in websocket session
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
@@ -66,12 +83,17 @@ public class ChatController {
     }
 
     @GetMapping("/messages")
-    public ResponseEntity<List<ChatMessage>> getMessages() {
+    public ResponseEntity<List<ChatMessage>> getMessages(@RequestParam String username, @RequestParam String gname) {
     	System.out.println("Debug 1");
-        List<ChatMessage> messages = kafkaConsumerService.getMessages();
-        for(ChatMessage m : messages){
-            System.out.println("Fetched by api: " + m.toString());
-        }
+//        List<ChatMessage> messages = kafkaConsumerService.getMessages();
+//        for(ChatMessage m : messages){
+//            System.out.println("Fetched by api: " + m.toString());
+//        }
+    	List<ChatMessage> messages = redisService.getMessagesByKeyword(username + "&" + gname);
+    	if(messages.size()==0) {
+    		List<ChatMessage> messagesFromKafka = kafkaConsumerService.getMessages();
+    		return ResponseEntity.ok(messagesFromKafka);
+    	}
         return ResponseEntity.ok(messages);
     }
 
