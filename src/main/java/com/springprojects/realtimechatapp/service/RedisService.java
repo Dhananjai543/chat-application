@@ -20,56 +20,57 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Component 
-@RequiredArgsConstructor 
+@Component
+@RequiredArgsConstructor
 @Slf4j
-public class RedisService { 
-	
-	@Autowired
-    private final RedisTemplate<String, Object> redisTemplate; 
-    
+public class RedisService {
+
+    @Autowired
+    private final RedisTemplate<String, Object> redisTemplate;
+
     @PostConstruct
     public void testConnection() {
         try {
-        	System.out.println(redisTemplate.getConnectionFactory().getConnection().toString());
+            System.out.println(redisTemplate.getConnectionFactory().getConnection().toString());
             redisTemplate.getConnectionFactory().getConnection().ping();
             System.out.println("Connected to Redis successfully");
         } catch (Exception e) {
             System.err.println("Unable to connect to Redis: " + e.getMessage());
         }
     }
- 
-    public <V> void set(String key, V value, long timeout, TimeUnit timeUnit) { 
-    	System.out.println("Storing message to redis cache: Key[" + key + "]");
-        redisTemplate.opsForValue().set(key, value); 
-        redisTemplate.expire(key, timeout, timeUnit); 
-    } 
-    
-    public <V> void setWithoutExpiration(String key, V value) { 
-    	System.out.println("Storing message to redis cache without expiration: Key[" + key + "]");
-        redisTemplate.opsForValue().set(key, value); 
-    } 
 
-    public <V> V get(String key) { 
-        return (V) redisTemplate.opsForValue().get(key); 
-    } 
- 
-    public Boolean hasKey(String key) { 
-        return redisTemplate.hasKey(key); 
-    } 
-    
-    public boolean hasKeyLike(String keyword) {
-    	Set<String> keys = redisTemplate.keys(keyword+"*");
-    	return keys != null && !keys.isEmpty();
+    public <V> void set(String key, V value, long timeout, TimeUnit timeUnit) {
+        System.out.println("Storing message to redis cache: Key[" + key + "]");
+        redisTemplate.opsForValue().set(key, value);
+        redisTemplate.expire(key, timeout, timeUnit);
     }
-    
+
+    public <V> void setWithoutExpiration(String key, V value) {
+        System.out.println("Storing message to redis cache without expiration: Key[" + key + "]");
+        redisTemplate.opsForValue().set(key, value);
+    }
+
+    public <V> V get(String key) {
+        return (V) redisTemplate.opsForValue().get(key);
+    }
+
+    public Boolean hasKey(String key) {
+        return redisTemplate.hasKey(key);
+    }
+
+    public boolean hasKeyLike(String keyword) {
+        Set<String> keys = redisTemplate.keys(keyword+"*");
+        return keys != null && !keys.isEmpty();
+    }
+
     public List<ChatMessage> getMessagesByKeyword(String keyword) {
-    	log.info("Retrieving messages from redis. Keyword = [" + keyword + "]");
+        log.info("Trying to retrieve messages from redis. Keyword = [" + keyword + "]");
         Set<String> keys = redisTemplate.keys(keyword + "*");
         if (keys == null || keys.isEmpty()) {
+            log.info("Empty key set");
             return Collections.emptyList();
         }
-        
+
         List<String> sortedKeys = new ArrayList<>();
         sortedKeys.addAll(keys);
         Collections.sort(sortedKeys, new Comparator<String>() {
@@ -78,7 +79,7 @@ public class RedisService {
                 // Extract the numeric part after the '-' character
                 int numA = Integer.parseInt(a.substring(a.indexOf('-') + 1));
                 int numB = Integer.parseInt(b.substring(b.indexOf('-') + 1));
-                
+
                 return Integer.compare(numA, numB);
             }
         });
@@ -101,9 +102,9 @@ public class RedisService {
                     messages.add(chatMessage);
                 }
             }catch (Exception e) {
-            	System.err.println("Failed to deserialize redis message: " + e.getMessage());
+                System.err.println("Failed to deserialize redis message: " + e.getMessage());
             }
-            
+
         }
         return messages;
     }

@@ -18,7 +18,7 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
-    @Value("${redis.password:}")  // empty string as default if not provided
+    @Value("${spring.data.redis.password:}")  // empty string as default if not provided
     private String redisPassword;
 	
 	@Bean

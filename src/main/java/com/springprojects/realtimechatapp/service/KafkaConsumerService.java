@@ -47,14 +47,14 @@ public class KafkaConsumerService {
 
     @Getter
     private List<ChatMessage> messages;
-    
+
     @Autowired
     private RedisService redisService;
 
 
     public void addListener(String chatGroupName, String username) {
-    	
-    	messages =  new ArrayList<>();
+
+        messages =  new ArrayList<>();
 
 
         System.out.println("Adding listener to kafka: " + chatGroupName);
@@ -136,7 +136,3 @@ public class KafkaConsumerService {
 
 
 }
-
-
-
-
