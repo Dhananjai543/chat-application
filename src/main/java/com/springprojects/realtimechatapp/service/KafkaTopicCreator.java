@@ -14,16 +14,16 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class KafkaTopicCreator {
 
-    @Value("${spring.kafka.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers:#{null}}")
     private String bootstrapServers;
 
-    @Value("${spring.kafka.properties.sasl.jaas.config}")
+    @Value("${spring.kafka.properties.sasl.jaas.config:#{null}}")
     private String jaasConfig;
 
-    @Value("${spring.kafka.properties.security.protocol}")
+    @Value("${spring.kafka.properties.security.protocol:#{null}}")
     private String securityProtocol;
 
-    @Value("${spring.kafka.properties.sasl.mechanism}")
+    @Value("${spring.kafka.properties.sasl.mechanism:#{null}}")
     private String saslMechanism;
 
     @Async
@@ -31,9 +31,18 @@ public class KafkaTopicCreator {
         return CompletableFuture.runAsync(() -> {
             Properties config = new Properties();
             config.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-            config.put("sasl.mechanism", saslMechanism);
-            config.put("security.protocol", securityProtocol);
-            config.put("sasl.jaas.config", jaasConfig);
+            if(saslMechanism!=null) {
+            	config.put("sasl.mechanism", saslMechanism);
+            }
+            
+            if(securityProtocol!=null) {
+            	config.put("security.protocol", securityProtocol);
+            }
+            
+            if(jaasConfig!=null) {
+            	config.put("sasl.jaas.config", jaasConfig);
+            }
+            
             try (AdminClient admin = AdminClient.create(config)) {
                 if (admin.listTopics().names().get().stream().noneMatch(topicName::equals)) {
                     System.out.println("Creating topic: " + topicName);

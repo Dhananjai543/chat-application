@@ -67,7 +67,7 @@ public class ChatController {
     	MessageTracker.clearMessages(chatMessage.getSender());
     	
     	String username = chatMessage.getSender();
-    	boolean hasMessages = redisService.hasKeyLike(username);
+    	boolean hasMessages = redisService.hasKeyLike(username+"&"+chatMessage.getChatGroupName());
     	if(!hasMessages) {
     		log.info("No messages present in redis for username [" +username+ "]. Adding listener!");
     		kafkaConsumerService.addListener(chatMessage.getChatGroupName(), chatMessage.getSender());
