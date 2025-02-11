@@ -13,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springprojects.realtimechatapp.entity.ChatMessage;
 import com.springprojects.realtimechatapp.service.KafkaConsumerService;
 import com.springprojects.realtimechatapp.service.KafkaTopicCreator;
@@ -25,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @Slf4j
 public class ChatController {
+	
+	private final ObjectMapper obj = new ObjectMapper();
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
@@ -45,8 +49,14 @@ public class ChatController {
     public void sendMessage(@Payload ChatMessage chatMessage){
         //return chatMessage;
         String chatGroupName = chatMessage.getChatGroupName();
-        String encryptedMessage = CipherHelper.encrypt(chatMessage.toString());
-
+        String jsonMessage = "";
+        try {
+			jsonMessage = obj.writeValueAsString(chatMessage);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+        String encryptedMessage = CipherHelper.encrypt(jsonMessage);
+        
         kafkaTopicCreator.createTopicIfNotExist(chatGroupName)
         .exceptionally(ex -> {
             // handle exception here
@@ -54,7 +64,7 @@ public class ChatController {
             return null;
         }).thenRun(() -> {
             kafkaTemplate.send(chatGroupName, encryptedMessage);
-        });;
+        });
 
         simpMessagingTemplate.convertAndSend("/topic/" + chatGroupName, chatMessage);
     }
@@ -83,15 +93,15 @@ public class ChatController {
     }
 
     @GetMapping("/messages")
-    public ResponseEntity<List<ChatMessage>> getMessages(@RequestParam String username, @RequestParam String gname) {
+    public ResponseEntity<List<String>> getMessages(@RequestParam String username, @RequestParam String gname) {
     	System.out.println("Debug 1");
 //        List<ChatMessage> messages = kafkaConsumerService.getMessages();
 //        for(ChatMessage m : messages){
 //            System.out.println("Fetched by api: " + m.toString());
 //        }
-    	List<ChatMessage> messages = redisService.getMessagesByKeyword(username + "&" + gname);
+    	List<String> messages = redisService.getMessagesByKeyword(username + "&" + gname);
     	if(messages.size()==0) {
-    		List<ChatMessage> messagesFromKafka = kafkaConsumerService.getMessages();
+    		List<String> messagesFromKafka = kafkaConsumerService.getMessages();
     		return ResponseEntity.ok(messagesFromKafka);
     	}
         return ResponseEntity.ok(messages);

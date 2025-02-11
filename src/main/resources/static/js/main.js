@@ -159,6 +159,7 @@ function onMessageReceived(payload) {
 }
 
 function addElement(message){
+	message = JSON.parse(message);
 	var messageElement = document.createElement('li');
 
     if(message.messageType === 'JOIN') {

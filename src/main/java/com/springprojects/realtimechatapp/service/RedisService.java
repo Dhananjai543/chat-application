@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springprojects.realtimechatapp.entity.ChatMessage;
 import com.springprojects.realtimechatapp.entity.MessageType;
 
@@ -25,89 +26,74 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RedisService {
 
-    @Autowired
-    private final RedisTemplate<String, Object> redisTemplate;
+	private final ObjectMapper obj = new ObjectMapper();
 
-    @PostConstruct
-    public void testConnection() {
-        try {
-            System.out.println(redisTemplate.getConnectionFactory().getConnection().toString());
-            redisTemplate.getConnectionFactory().getConnection().ping();
-            System.out.println("Connected to Redis successfully");
-        } catch (Exception e) {
-            System.err.println("Unable to connect to Redis: " + e.getMessage());
-        }
-    }
+	@Autowired
+	private final RedisTemplate<String, Object> redisTemplate;
 
-    public <V> void set(String key, V value, long timeout, TimeUnit timeUnit) {
-        System.out.println("Storing message to redis cache: Key[" + key + "]");
-        redisTemplate.opsForValue().set(key, value);
-        redisTemplate.expire(key, timeout, timeUnit);
-    }
+	@PostConstruct
+	public void testConnection() {
+		try {
+			System.out.println(redisTemplate.getConnectionFactory().getConnection().toString());
+			redisTemplate.getConnectionFactory().getConnection().ping();
+			System.out.println("Connected to Redis successfully");
+		} catch (Exception e) {
+			System.err.println("Unable to connect to Redis: " + e.getMessage());
+		}
+	}
 
-    public <V> void setWithoutExpiration(String key, V value) {
-        System.out.println("Storing message to redis cache without expiration: Key[" + key + "]");
-        redisTemplate.opsForValue().set(key, value);
-    }
+	public <V> void set(String key, V value, long timeout, TimeUnit timeUnit) {
+		System.out.println("Storing message to redis cache: Key[" + key + "]");
+		redisTemplate.opsForValue().set(key, value);
+		redisTemplate.expire(key, timeout, timeUnit);
+	}
 
-    public <V> V get(String key) {
-        return (V) redisTemplate.opsForValue().get(key);
-    }
+	public <V> void setWithoutExpiration(String key, V value) {
+		System.out.println("Storing message to redis cache without expiration: Key[" + key + "]");
+		redisTemplate.opsForValue().set(key, value);
+	}
 
-    public Boolean hasKey(String key) {
-        return redisTemplate.hasKey(key);
-    }
+	public <V> V get(String key) {
+		return (V) redisTemplate.opsForValue().get(key);
+	}
 
-    public boolean hasKeyLike(String keyword) {
-        Set<String> keys = redisTemplate.keys(keyword+"*");
-        return keys != null && !keys.isEmpty();
-    }
+	public Boolean hasKey(String key) {
+		return redisTemplate.hasKey(key);
+	}
 
-    public List<ChatMessage> getMessagesByKeyword(String keyword) {
-        log.info("Trying to retrieve messages from redis. Keyword = [" + keyword + "]");
-        Set<String> keys = redisTemplate.keys(keyword + "*");
-        if (keys == null || keys.isEmpty()) {
-            log.info("Empty key set");
-            return Collections.emptyList();
-        }
+	public boolean hasKeyLike(String keyword) {
+		Set<String> keys = redisTemplate.keys(keyword + "*");
+		return keys != null && !keys.isEmpty();
+	}
 
-        List<String> sortedKeys = new ArrayList<>();
-        sortedKeys.addAll(keys);
-        Collections.sort(sortedKeys, new Comparator<String>() {
-            @Override
-            public int compare(String a, String b) {
-                // Extract the numeric part after the '-' character
-                int numA = Integer.parseInt(a.substring(a.indexOf('-') + 1));
-                int numB = Integer.parseInt(b.substring(b.indexOf('-') + 1));
+	public List<String> getMessagesByKeyword(String keyword) {
+		log.info("Trying to retrieve messages from redis. Keyword = [" + keyword + "]");
+		Set<String> keys = redisTemplate.keys(keyword + "*");
+		if (keys == null || keys.isEmpty()) {
+			log.info("Empty key set");
+			return Collections.emptyList();
+		}
 
-                return Integer.compare(numA, numB);
-            }
-        });
-        List<ChatMessage> messages = new ArrayList<>();
-        for (String key : sortedKeys) {
-            String message = redisTemplate.opsForValue().get(key).toString();
-            System.out.println("Decrypted message for key [" +key+ "] : " + message);
-            try {
-                Pattern pattern = Pattern.compile("ChatMessage\\(content=(.*), sender=(.*), messageType=(.*), chatGroupName=(.*)\\)");
-                assert message != null;
-                Matcher matcher = pattern.matcher(message);
+		List<String> sortedKeys = new ArrayList<>();
+		sortedKeys.addAll(keys);
+		Collections.sort(sortedKeys, new Comparator<String>() {
+			@Override
+			public int compare(String a, String b) {
+				// Extract the numeric part after the '-' character
+				int numA = Integer.parseInt(a.substring(a.indexOf('-') + 1));
+				int numB = Integer.parseInt(b.substring(b.indexOf('-') + 1));
 
-                if (matcher.find()) {
-                    String content = matcher.group(1);
-                    String sender = matcher.group(2);
-                    MessageType messageType = MessageType.valueOf(matcher.group(3));
-                    String currChatGroupName = matcher.group(4);
+				return Integer.compare(numA, numB);
+			}
+		});
 
-                    ChatMessage chatMessage = new ChatMessage(content, sender, messageType, currChatGroupName);
-                    messages.add(chatMessage);
-                }
-            }catch (Exception e) {
-                System.err.println("Failed to deserialize redis message: " + e.getMessage());
-            }
+		List<String> messages = new ArrayList<>();
+		for (String key : sortedKeys) {
+			String message = redisTemplate.opsForValue().get(key).toString();
+			System.out.println("Decrypted message for key [" + key + "] : " + message);
+			messages.add(message);
+		}
+		return messages;
+	}
 
-        }
-        return messages;
-    }
-
-
-} 
+}
