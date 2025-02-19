@@ -30,13 +30,8 @@ public class ChatGroupController {
 	
 	@PostMapping("/findChatGroup")
 	public String getChatPage(@RequestParam("chatgroup") String chatgroup, Model model) {
-		// replace "userExists" with the actual condition to check if the user exists in
-		// the database
 		ChatGroup foundGroup = chatGroupService.findByChatGroupName(chatgroup);
         if (foundGroup != null) {
-//        	  Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//            String currentUsername = auth.getName();
-//            System.out.println("Current Username: " + currentUsername);
             model.addAttribute("chatgroup", chatgroup);
             return "message-page";
         } else {
@@ -70,7 +65,8 @@ public class ChatGroupController {
 				return "create-group-form";
 			}
     		chatGroupService.saveChatGroup(chatGroup);
-    		
+			kafkaTopicCreator.createTopicIfNotExist(chatGroup.getGroup_name());
+
     		model.addAttribute("chatgroup", chatGroup.getGroup_name());
             return "message-page";
     	}catch(Exception e) {

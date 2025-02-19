@@ -3,6 +3,7 @@ package com.springprojects.realtimechatapp.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -30,6 +31,9 @@ public class ChatController {
 	
 	private final ObjectMapper obj = new ObjectMapper();
 
+    @Value("${redis.message.timeout.minutes:#{1}}")
+    private String redisMessagesTimeoutMinutes;
+
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
@@ -56,15 +60,10 @@ public class ChatController {
 			e.printStackTrace();
 		}
         String encryptedMessage = CipherHelper.encrypt(jsonMessage);
-        
-        kafkaTopicCreator.createTopicIfNotExist(chatGroupName)
-        .exceptionally(ex -> {
-            // handle exception here
-            System.err.println("Failed to create topic: " + ex.getMessage());
-            return null;
-        }).thenRun(() -> {
-            kafkaTemplate.send(chatGroupName, encryptedMessage);
-        });
+
+        String finalJsonMessage = jsonMessage;
+        kafkaTemplate.send(chatGroupName, encryptedMessage);
+        redisService.pushToZSet(chatMessage.getSender()+"&"+chatGroupName, finalJsonMessage, Integer.parseInt(redisMessagesTimeoutMinutes));
 
         simpMessagingTemplate.convertAndSend("/topic/" + chatGroupName, chatMessage);
     }
@@ -75,9 +74,13 @@ public class ChatController {
         
     	//clear previous messages loaded from map for currently logged in user
     	MessageTracker.clearMessages(chatMessage.getSender());
-    	
+
     	String username = chatMessage.getSender();
-    	boolean hasMessages = redisService.hasKeyLike(username+"&"+chatMessage.getChatGroupName());
+
+        //clear expired messages from redis
+        redisService.removeExpiredMessages(username+"&"+chatMessage.getChatGroupName());
+
+    	boolean hasMessages = redisService.hasKey(username+"&"+chatMessage.getChatGroupName());
     	if(!hasMessages) {
     		log.info("No messages present in redis for username [" +username+ "]. Adding listener!");
     		kafkaConsumerService.addListener(chatMessage.getChatGroupName(), chatMessage.getSender());
@@ -95,28 +98,14 @@ public class ChatController {
     @GetMapping("/messages")
     public ResponseEntity<List<String>> getMessages(@RequestParam String username, @RequestParam String gname) {
     	System.out.println("Debug 1");
-//        List<ChatMessage> messages = kafkaConsumerService.getMessages();
-//        for(ChatMessage m : messages){
-//            System.out.println("Fetched by api: " + m.toString());
-//        }
-    	List<String> messages = redisService.getMessagesByKeyword(username + "&" + gname);
-    	if(messages.size()==0) {
+        List<String> messages = redisService.getNonExpiredMessages(username + "&" + gname);
+        System.out.println("Messages size [redis]: " + messages.size());
+        if(messages.size()==0) {
     		List<String> messagesFromKafka = kafkaConsumerService.getMessages();
+            redisService.pushAllToZSet(username + "&" + gname, messagesFromKafka, Integer.parseInt(redisMessagesTimeoutMinutes));
     		return ResponseEntity.ok(messagesFromKafka);
     	}
         return ResponseEntity.ok(messages);
     }
 
-
-
-//    @KafkaListener(topics = "friends",groupId = "group_id")
-//    public void consume(String message)
-//    {
-//        System.out.println("message = " + message);
-//    }
-
-//    @PostMapping("/api/sendMessageToKafka")
-//    public void sendMessage(@RequestBody String message) {
-//        messageProducer.sendMessage("your-topic", message);
-//    }
 }

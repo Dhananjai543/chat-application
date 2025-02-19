@@ -1,21 +1,16 @@
 package com.springprojects.realtimechatapp.service;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springprojects.realtimechatapp.entity.ChatMessage;
-import com.springprojects.realtimechatapp.entity.MessageType;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -42,58 +37,37 @@ public class RedisService {
 		}
 	}
 
-	public <V> void set(String key, V value, long timeout, TimeUnit timeUnit) {
-		System.out.println("Storing message to redis cache: Key[" + key + "]");
-		redisTemplate.opsForValue().set(key, value);
-		redisTemplate.expire(key, timeout, timeUnit);
+	public void pushToZSet(String key, String value, long ttlInMinutes) {
+		long expiryTimestamp = Instant.now().getEpochSecond() + TimeUnit.MINUTES.toSeconds(ttlInMinutes);
+		redisTemplate.opsForZSet().add(key, value, expiryTimestamp);
 	}
 
-	public <V> void setWithoutExpiration(String key, V value) {
-		System.out.println("Storing message to redis cache without expiration: Key[" + key + "]");
-		redisTemplate.opsForValue().set(key, value);
+	public <V> void pushAllToZSet(String key, List<V> list, long ttlInMinutes) {
+		for(V v : list) {
+			long expiryTimestamp = Instant.now().getEpochSecond() + TimeUnit.MINUTES.toSeconds(ttlInMinutes);
+			redisTemplate.opsForZSet().add(key, v, expiryTimestamp);
+		}
+
 	}
 
-	public <V> V get(String key) {
-		return (V) redisTemplate.opsForValue().get(key);
+	public void removeExpiredMessages(String key) {
+		System.out.println("Removing expired messages from redis for key [" + key + "]");
+		long currentTimestamp = Instant.now().getEpochSecond();
+		redisTemplate.opsForZSet().removeRangeByScore(key, 0, currentTimestamp);
+	}
+
+	public List<String> getNonExpiredMessages(String key) {
+		long currentTimestamp = Instant.now().getEpochSecond();
+		Set<Object> set = redisTemplate.opsForZSet().rangeByScore(key, currentTimestamp, Double.MAX_VALUE);
+		List<String> ans = new ArrayList<>();
+		assert set != null;
+		for(Object o : set) ans.add(o.toString());
+		return ans;
 	}
 
 	public Boolean hasKey(String key) {
 		return redisTemplate.hasKey(key);
 	}
 
-	public boolean hasKeyLike(String keyword) {
-		Set<String> keys = redisTemplate.keys(keyword + "*");
-		return keys != null && !keys.isEmpty();
-	}
-
-	public List<String> getMessagesByKeyword(String keyword) {
-		log.info("Trying to retrieve messages from redis. Keyword = [" + keyword + "]");
-		Set<String> keys = redisTemplate.keys(keyword + "*");
-		if (keys == null || keys.isEmpty()) {
-			log.info("Empty key set");
-			return Collections.emptyList();
-		}
-
-		List<String> sortedKeys = new ArrayList<>();
-		sortedKeys.addAll(keys);
-		Collections.sort(sortedKeys, new Comparator<String>() {
-			@Override
-			public int compare(String a, String b) {
-				// Extract the numeric part after the '-' character
-				int numA = Integer.parseInt(a.substring(a.indexOf('-') + 1));
-				int numB = Integer.parseInt(b.substring(b.indexOf('-') + 1));
-
-				return Integer.compare(numA, numB);
-			}
-		});
-
-		List<String> messages = new ArrayList<>();
-		for (String key : sortedKeys) {
-			String message = redisTemplate.opsForValue().get(key).toString();
-			System.out.println("Decrypted message for key [" + key + "] : " + message);
-			messages.add(message);
-		}
-		return messages;
-	}
 
 }
