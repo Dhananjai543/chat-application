@@ -1,7 +1,12 @@
 package com.springprojects.realtimechatapp.config;
 
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 @Configuration
 public class KafkaSSLConfig {
@@ -67,5 +72,31 @@ public class KafkaSSLConfig {
 
     public String getSaslMechanism() {
         return saslMechanism;
+    }
+
+    public Properties getSimpleKafkaProperties() {
+        Properties config = new Properties();
+        config.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, this.getBootstrapServers());
+        config.put(SSLConfig.SSL_SECURITY_PROTOCOL_CONFIG, this.getSecurityProtocol());
+        config.put(SSLConfig.SSL_TRUSTSTORE_LOCATION_CONFIG, this.getTruststoreLocation());
+        config.put(SSLConfig.SSL_TRUSTSTORE_PASSWORD_CONFIG, this.getTruststorePassword());
+        config.put(SSLConfig.SSL_KEYSTORE_LOCATION_CONFIG, this.getKeystoreLocation());
+        config.put(SSLConfig.SSL_KEYSTORE_PASSWORD_CONFIG, this.getKeystorePassword());
+        config.put(SSLConfig.SSL_KEY_PASSWORD_CONFIG, this.getKeyPassword());
+        return config;
+    }
+
+    public Map<String, Object> getSimpleKafkaPropertiesMap() {
+        Map<String, Object> config = new HashMap<>();
+
+        config.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, this.getBootstrapServers());
+        config.put(SSLConfig.SSL_SECURITY_PROTOCOL_CONFIG, this.getSecurityProtocol());
+        config.put(SSLConfig.SSL_TRUSTSTORE_LOCATION_CONFIG, this.getTruststoreLocation());
+        config.put(SSLConfig.SSL_TRUSTSTORE_PASSWORD_CONFIG, this.getTruststorePassword());
+        config.put(SSLConfig.SSL_KEYSTORE_LOCATION_CONFIG, this.getKeystoreLocation());
+        config.put(SSLConfig.SSL_KEYSTORE_PASSWORD_CONFIG, this.getKeystorePassword());
+        config.put(SSLConfig.SSL_KEY_PASSWORD_CONFIG, this.getKeyPassword());
+
+        return config;
     }
 }

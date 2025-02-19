@@ -1,12 +1,16 @@
 package com.springprojects.realtimechatapp.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.springprojects.realtimechatapp.config.KafkaConsumerConfig;
 import com.springprojects.realtimechatapp.entity.ChatMessage;
 import com.springprojects.realtimechatapp.utilities.CipherHelper;
 import com.springprojects.realtimechatapp.utilities.MessageTracker;
 
 import lombok.Getter;
+import org.hibernate.resource.beans.container.spi.AbstractCdiBeanContainer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.MessageListener;
@@ -22,8 +26,8 @@ public class KafkaConsumerService {
 
 	private final ObjectMapper obj = new ObjectMapper();
 
-	@Autowired
-	private ConcurrentKafkaListenerContainerFactory<String, String> factory;
+//	@Autowired
+//	private ConcurrentKafkaListenerContainerFactory<String, String> factory;
 
 	private Map<String, ConcurrentMessageListenerContainer<String, String>> listenerContainers = new HashMap<>();
 
@@ -32,11 +36,17 @@ public class KafkaConsumerService {
 	@Getter
 	private List<String> messages;
 
-	public void addListener(String chatGroupName, String username) {
+	@Autowired
+	private ApplicationContext applicationContext;
 
+	public void addListener(String chatGroupName, String username) {
+		
 		messages = new ArrayList<>();
 
 		System.out.println("Adding listener to kafka: " + chatGroupName);
+		ConcurrentKafkaListenerContainerFactory<String, String> factory =
+				(ConcurrentKafkaListenerContainerFactory<String, String>) applicationContext.getBean(
+						ConcurrentKafkaListenerContainerFactory.class);
 
 		ConcurrentMessageListenerContainer<String, String> container = factory.createContainer(chatGroupName);
 		container.setupMessageListener((MessageListener<String, String>) message -> {
