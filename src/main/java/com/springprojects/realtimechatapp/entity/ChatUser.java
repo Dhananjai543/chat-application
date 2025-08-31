@@ -31,6 +31,9 @@ public class ChatUser {
 	
 	@Column(name="user_password")
 	private String user_password;  //password validations handled in controller class
+
+	@Column(name="enabled")
+	private int enabled;
 	
 	
 //	@ManyToMany(fetch=FetchType.LAZY, cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH,CascadeType.REFRESH })
@@ -106,7 +109,11 @@ public class ChatUser {
 				+ ", user_password=" + user_password + ", authorities=" + authorities + "]";
 	}
 
-	
-	
-	
+	public int getEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(int enabled) {
+		this.enabled = enabled;
+	}
 }
